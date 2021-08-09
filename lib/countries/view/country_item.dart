@@ -9,22 +9,29 @@ class CountryItem extends StatelessWidget {
   CountryItem(this.model);
 
   @override
-  Widget build(BuildContext context) => Row(
-    mainAxisSize: MainAxisSize.max,
-    children: [
-      Text(model.alpha2Code),
-      Column(
-        children: [
-          Text(model.name),
-          Text(model.subregion),
-        ],
-      ),
-      SizedBox(
-        width: 50,
-        height: 50,
-        child: SvgPicture.network(model.flag),
-      ),
-    ],
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+    child: Row(
+      mainAxisSize: MainAxisSize.max,
+      children: [
+        SizedBox(
+          width: 30,
+          height: 30,
+          child: SvgPicture.network(model.flag),
+        ),
+        SizedBox(width: 16.0),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(model.name, style: TextStyle(fontSize: 16.0)),
+              Text(model.subregion, style: TextStyle(fontSize: 13.0, color: Colors.black54)),
+            ],
+          ),
+        ),
+        Text(model.alpha2Code, style: TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold)),
+      ],
+    ),
   );
 
 }

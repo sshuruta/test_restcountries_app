@@ -4,11 +4,11 @@ abstract class ICountriesState {}
 
 class CountriesLoadingState extends ICountriesState {}
 
-class CountriesLoadingErrorState extends ICountriesState {}
+class CountriesFilteringState extends ICountriesState {}
 
 class CountriesListState extends ICountriesState {
 
-  final List<CountryModel> countries;
+  final List<CountryModel>? countries;
 
   CountriesListState(this.countries);
 

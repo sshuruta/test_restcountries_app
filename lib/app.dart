@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:test_restcountries_app/countries/view/countries.dart';
+import 'package:test_restcountries_app/countries/view/countries_screen.dart';
 
 class App extends StatelessWidget {
 

@@ -8,21 +8,34 @@ class CountriesRepository {
 
   List<CountryModel>? _data;
 
-  Future<List<CountryModel>?> load() async {
+  Future<List<CountryModel>> getData([ String? search ]) async {
+    if(null == _data) {
+      _data = await _loadData();
+    }
+    List<CountryModel> data = _data ?? [];
+    return null != search
+        ? data.where((item) => item.name.toLowerCase().contains(search.toLowerCase())).toList()
+        : data;
+  }
+
+  remove(CountryModel model) {
+    _data?.removeWhere((element) => element == model);
+  }
+
+  Future<List<CountryModel>?> _loadData() async {
+    List<CountryModel>? data;
     var _httpClient = http.Client();
     try {
       await Future.delayed(const Duration(seconds: 2));
       http.Response response = await _httpClient.get(Uri.parse(_API_URL));
       List<dynamic> jsonArray = jsonDecode(response.body);
-      _data = jsonArray.map((json) => CountryModel.fromJson(json)).toList();
-    } catch(e) {} finally {
+      data = jsonArray.map((json) => CountryModel.fromJson(json)).toList();
+    } catch (e) {
+      throw(e.toString());
+    } finally {
       _httpClient.close();
     }
-    return _data;
+    return data;
   }
 
-  Future<List<CountryModel>?> filter(String search) async {
-    await Future.delayed(const Duration(milliseconds: 1500));
-    return _data?.where((item) => item.name.toLowerCase().contains(search.toLowerCase())).toList();
-  }
 }

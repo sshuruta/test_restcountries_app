@@ -2,14 +2,20 @@ import 'package:test_restcountries_app/countries/repository/model/country_model.
 
 abstract class ICountriesState {}
 
-class CountriesLoadingState extends ICountriesState {}
+class CountriesProgressState extends ICountriesState {}
 
-class CountriesFilteringState extends ICountriesState {}
+class CountriesErrorState extends ICountriesState {}
 
-class CountriesListState extends ICountriesState {
+abstract class CountriesDoneState extends ICountriesState {}
 
-  final List<CountryModel>? countries;
 
-  CountriesListState(this.countries);
+class CountriesFilteringState extends CountriesDoneState {}
+
+class CountriesDisplayState extends CountriesDoneState {
+
+  final List<CountryModel> countries;
+  final String? search;
+
+  CountriesDisplayState(this.countries, { this.search });
 
 }

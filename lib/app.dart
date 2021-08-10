@@ -7,10 +7,6 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) => MaterialApp(
     title: 'Test restcountries.eu app',
     //debugShowCheckedModeBanner: false,
-    home: Scaffold(
-      body: SafeArea(
-        child: CountriesScreen(),
-      ),
-    ),
+    home: CountriesScreen(),
   );
 }

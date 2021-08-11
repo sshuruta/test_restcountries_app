@@ -6,15 +6,15 @@ class CountriesRepository {
 
   static const String _API_URL = 'https://restcountries.eu/rest/v2/region/europe';
 
-  List<CountryModel>? _data;
+  Set<CountryModel>? _data;
 
-  Future<List<CountryModel>> getData([ String? search ]) async {
+  Future<Set<CountryModel>> getData([ String? search ]) async {
     if(null == _data) {
       _data = await _loadData();
     }
-    List<CountryModel> data = _data ?? [];
+    Set<CountryModel> data = _data ?? {};
     return null != search
-        ? data.where((item) => item.name.toLowerCase().contains(search.toLowerCase())).toList()
+        ? data.where((item) => item.name.toLowerCase().contains(search.toLowerCase())).toSet()
         : data;
   }
 
@@ -22,20 +22,27 @@ class CountriesRepository {
     _data?.removeWhere((element) => element == model);
   }
 
-  Future<List<CountryModel>?> _loadData() async {
-    List<CountryModel>? data;
+  Future<Set<CountryModel>> _loadData() async {
+    Set<CountryModel> result = {};
     var _httpClient = http.Client();
     try {
       await Future.delayed(const Duration(seconds: 2));
       http.Response response = await _httpClient.get(Uri.parse(_API_URL));
-      List<dynamic> jsonArray = jsonDecode(response.body);
-      data = jsonArray.map((json) => CountryModel.fromJson(json)).toList();
+      var data = jsonDecode(response.body);
+      if(data is List<dynamic>) {
+        data.forEach((json) {
+          CountryModel? model = CountryModel.fromJson(json);
+          if (null != model) {
+            result.add(model);
+          }
+        });
+      }
     } catch (e) {
       throw(e.toString());
     } finally {
       _httpClient.close();
     }
-    return data;
+    return result;
   }
 
 }

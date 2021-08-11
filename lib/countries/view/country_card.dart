@@ -7,7 +7,6 @@ import 'package:test_restcountries_app/countries/repository/model/country_model.
 import 'package:test_restcountries_app/countries/view/country_item.dart';
 import 'package:test_restcountries_app/map/view/map.dart';
 
-
 class CountryCard extends StatelessWidget {
 
   @override
@@ -15,6 +14,10 @@ class CountryCard extends StatelessWidget {
     children: [
       TextField(
         maxLines: 1,
+        decoration: new InputDecoration(
+          contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+          hintText: "Country name",
+        ),
         autofocus: false,
         onChanged: (search) => context.read<CountriesBloc>().add(CountriesFilterEvent(search)),
       ),
@@ -24,7 +27,7 @@ class CountryCard extends StatelessWidget {
           builder: (context, state) => state is CountriesDisplayState
               ? state.countries.isNotEmpty
               ? CountryList(state.countries, onRemove: (model) => context.read<CountriesBloc>().add(CountriesRemoveEvent(model)))
-              : Center(child: Text("Не найдено"))
+              : Center(child: Text("Not found"))
               : Center(child: CircularProgressIndicator()),
         ),
       ),
@@ -35,7 +38,7 @@ class CountryCard extends StatelessWidget {
 
 class CountryList extends StatefulWidget {
 
-  final List<CountryModel> countries;
+  final Set<CountryModel> countries;
   final Function(CountryModel model) onRemove;
 
   CountryList(this.countries, { required this.onRemove });
@@ -50,12 +53,14 @@ class CountryListState extends State<CountryList> {
   Widget build(BuildContext context) => ListView.separated(
       itemCount: widget.countries.length,
       itemBuilder: (BuildContext context, int index) {
-        final item = widget.countries[index];
+        final item = widget.countries.elementAt(index);
         return Dismissible(
           key: Key(item.name),
           onDismissed: (direction) {
             setState(() {
-              widget.onRemove(widget.countries.removeAt(index));
+              CountryModel model = widget.countries.elementAt(index);
+              widget.countries.remove(model);
+              widget.onRemove(model);
             });
           },
           child: InkWell(

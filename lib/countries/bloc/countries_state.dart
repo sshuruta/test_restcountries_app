@@ -13,7 +13,7 @@ class CountriesFilteringState extends CountriesDoneState {}
 
 class CountriesDisplayState extends CountriesDoneState {
 
-  final List<CountryModel> countries;
+  final Set<CountryModel> countries;
   final String? search;
 
   CountriesDisplayState(this.countries, { this.search });

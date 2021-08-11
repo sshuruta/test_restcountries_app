@@ -11,7 +11,7 @@ class CButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => ElevatedButton(
-    style: TextButton.styleFrom(primary: Colors.blue),
+    style: TextButton.styleFrom(primary: Colors.amber),
     child: Text(name, style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
     onPressed: onPressed);
 

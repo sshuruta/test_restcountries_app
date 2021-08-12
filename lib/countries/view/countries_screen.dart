@@ -36,12 +36,11 @@ class CountriesScreen extends StatelessWidget {
             ],
           ),
           body: SafeArea(
-            child: state is CountriesErrorState
-              ? Center(child: CButton("Reload", onPressed: () => _reLoad(context)))
-              : state is CountriesDoneState
-                  ? CountryCard(state.search, state.countries,
-                    onChanged: (search) => _search(context, search))
-                : Center(child: CircularProgressIndicator()),
+            child: state is CountriesDoneState
+              ? CountryCard(state.search, state.countries, onChanged: (search) => _search(context, search))
+              : state is CountriesErrorState
+                ? Center(child: CButton("Reload", onPressed: () => _reLoad(context)))
+                : Center(child: CircularProgressIndicator(color: Colors.amber)),
           ),
         ),
       ),

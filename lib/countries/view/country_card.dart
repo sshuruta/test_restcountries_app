@@ -26,7 +26,7 @@ class CountryCard extends StatelessWidget {
       ),
       Expanded(
         child: countries == null
-            ? Center(child: CircularProgressIndicator())
+            ? Center(child: CircularProgressIndicator(color: Colors.amber))
             : countries!.isNotEmpty
             ? CountryList(countries!, onRemove: (model) => context.read<CountriesBloc>().add(CountriesRemoveEvent(model)))
             : Center(child: Text("Not found")),

@@ -43,7 +43,7 @@ class CountriesRepository {
           }
         });
       }
-    } finally {
+    } catch(e) {} finally {
       _httpClient.close();
     }
     return result;

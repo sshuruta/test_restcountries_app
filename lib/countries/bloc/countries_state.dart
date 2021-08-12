@@ -6,16 +6,17 @@ class CountriesProgressState extends ICountriesState {}
 
 class CountriesErrorState extends ICountriesState {}
 
-abstract class CountriesDoneState extends ICountriesState {}
 
+abstract class CountriesDoneState extends ICountriesState {
+  final Set<CountryModel>? countries;
+  final String search;
+  CountriesDoneState(this.countries, this.search);
+}
 
-class CountriesFilteringState extends CountriesDoneState {}
+class CountriesDoneProgressState extends CountriesDoneState {
+  CountriesDoneProgressState([ String search = "" ]): super(null, search);
+}
 
-class CountriesDisplayState extends CountriesDoneState {
-
-  final Set<CountryModel> countries;
-  final String? search;
-
-  CountriesDisplayState(this.countries, { this.search });
-
+class CountriesDoneDisplayState extends CountriesDoneState {
+  CountriesDoneDisplayState(Set<CountryModel> countries, String search): super(countries, search);
 }

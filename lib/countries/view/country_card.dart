@@ -2,77 +2,35 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_restcountries_app/countries/bloc/countries_bloc.dart';
 import 'package:test_restcountries_app/countries/bloc/countries_event.dart';
-import 'package:test_restcountries_app/countries/bloc/countries_state.dart';
 import 'package:test_restcountries_app/countries/repository/model/country_model.dart';
-import 'package:test_restcountries_app/countries/view/country_item.dart';
-import 'package:test_restcountries_app/map/view/map.dart';
+import 'package:test_restcountries_app/countries/view/c_search.dart';
+import 'package:test_restcountries_app/countries/view/country_list.dart';
 
 class CountryCard extends StatelessWidget {
+
+  final String search;
+  final Set<CountryModel>? countries;
+  final Function(String search) onChanged;
+  final TextEditingController controller = TextEditingController();
+
+  CountryCard(this.search, this.countries, {
+    required this.onChanged,
+  });
 
   @override
   Widget build(BuildContext context) => Column(
     children: [
-      TextField(
-        maxLines: 1,
-        decoration: new InputDecoration(
-          contentPadding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-          hintText: "Country name",
-        ),
-        autofocus: false,
-        onChanged: (search) => context.read<CountriesBloc>().add(CountriesFilterEvent(search)),
+      CSearch(search,
+        hint: "Country name",
+        onChanged: (search) => this.search != search ? onChanged(search) : null,
       ),
       Expanded(
-        child: BlocBuilder<CountriesBloc, ICountriesState>(
-          buildWhen: (previous, current) => current is CountriesDoneState,
-          builder: (context, state) => state is CountriesDisplayState
-              ? state.countries.isNotEmpty
-              ? CountryList(state.countries, onRemove: (model) => context.read<CountriesBloc>().add(CountriesRemoveEvent(model)))
-              : Center(child: Text("Not found"))
-              : Center(child: CircularProgressIndicator()),
-        ),
+        child: countries == null
+            ? Center(child: CircularProgressIndicator())
+            : countries!.isNotEmpty
+            ? CountryList(countries!, onRemove: (model) => context.read<CountriesBloc>().add(CountriesRemoveEvent(model)))
+            : Center(child: Text("Not found")),
       ),
     ],
   );
-}
-
-
-class CountryList extends StatefulWidget {
-
-  final Set<CountryModel> countries;
-  final Function(CountryModel model) onRemove;
-
-  CountryList(this.countries, { required this.onRemove });
-
-  @override
-  State<StatefulWidget> createState() => CountryListState();
-}
-
-class CountryListState extends State<CountryList> {
-
-  @override
-  Widget build(BuildContext context) => ListView.separated(
-      itemCount: widget.countries.length,
-      itemBuilder: (BuildContext context, int index) {
-        final item = widget.countries.elementAt(index);
-        return Dismissible(
-          key: Key(item.name),
-          onDismissed: (direction) {
-            setState(() {
-              CountryModel model = widget.countries.elementAt(index);
-              widget.countries.remove(model);
-              widget.onRemove(model);
-            });
-          },
-          child: InkWell(
-            onTap: null != item.latLng ? () => Navigator.push(context,
-              MaterialPageRoute(
-                builder: (context) => MapScreen(item),
-              ),
-            ) : null,
-            child: CountryItem(item),
-          ),
-        );
-      },
-      separatorBuilder: (context, index) => Divider());
-
 }

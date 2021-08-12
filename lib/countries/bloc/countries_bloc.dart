@@ -3,44 +3,61 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:test_restcountries_app/countries/bloc/countries_event.dart';
 import 'package:test_restcountries_app/countries/bloc/countries_state.dart';
 import 'package:test_restcountries_app/countries/repository/countries_repository.dart';
+import 'package:test_restcountries_app/countries/repository/model/country_model.dart';
 
 class CountriesBloc extends  Bloc<ICountriesEvent, ICountriesState> {
 
   static const int _MIN_SEARCH_TEXT_LENGTH = 3;
+  static const int _SEARCH_DURATION = 1500;
 
   final CountriesRepository _repository;
+  Timer? _timer;
 
   CountriesBloc(this._repository) : super(CountriesProgressState()) {
-    add(CountriesLoadEvent());
+    add(CountriesReLoadEvent());
   }
 
   @override
   Stream<ICountriesState> mapEventToState(ICountriesEvent event) async* {
 
-    if(event is CountriesLoadEvent) {
+    if(event is CountriesReLoadEvent) {
       yield CountriesProgressState();
-      yield await _repository.getData()
-        .then<ICountriesState>((data) => CountriesDisplayState(data))
-        .catchError((_) => CountriesErrorState());
+      yield _display(await _repository.reload());
     }
 
+    if(event is CountriesLoadEvent) {
+      yield CountriesDoneProgressState();
+      yield _display(await _repository.getData());
+    }
 
-    if (event is CountriesFilterEvent) {
-      if (event.search.length > _MIN_SEARCH_TEXT_LENGTH) {
-        yield CountriesFilteringState();
-        await Future.delayed(const Duration(milliseconds: 1500));
-        yield CountriesDisplayState(await _repository.getData(event.search), search: event.search);
-      } else {
-        yield CountriesDisplayState(await _repository.getData());
+    if (event is CountriesFilterStartEvent) {
+      _timer?.cancel();
+      if (event.search.length >= _MIN_SEARCH_TEXT_LENGTH) {
+        yield CountriesDoneProgressState(event.search);
+        _timer = Timer(Duration(milliseconds: _SEARCH_DURATION), () {
+          add(CountriesFilterFinishEvent(event.search));
+        });
+      }
+      if (event.search.length == 0) {
+        yield _display(await _repository.getData());
       }
     }
 
-    if(state is CountriesDisplayState) {
-      CountriesDisplayState currentState = state as CountriesDisplayState;
-      if (event is CountriesRemoveEvent) {
-        _repository.remove(event.model);
-        yield CountriesDisplayState(await _repository.getData(currentState.search), search: currentState.search);
+
+    if (event is CountriesFilterFinishEvent) {
+      yield _display(await _repository.getData(event.search), event.search);
+    }
+
+    if(event is CountriesRemoveEvent) {
+      _repository.remove(event.model);
+      if(state is CountriesDoneDisplayState) {
+        String search = (state as CountriesDoneDisplayState).search;
+        yield _display(await _repository.getData(search), search);
       }
     }
   }
+
+  ICountriesState _display(Set<CountryModel>? models, [ String search = "" ]) => null != models
+    ? CountriesDoneDisplayState(models, search)
+    : CountriesErrorState();
 }
